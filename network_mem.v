@@ -20,6 +20,9 @@ module network_mem
       input [7:0] cpu_addr_in,
       input cpu_we,
 		input done_process,
+		output [1:0] state_out,
+		output [7:0] start_addr_out,
+		output [7:0] end_addr_out,
       
       // --- Register interface
       // input                               reg_req_in,
@@ -42,13 +45,14 @@ module network_mem
    );
 
     // local parameter
-   parameter                     START = 2'b00;
-   parameter                     CAPTURE = 2'b01;
-   parameter                     PROCESS = 2'b10;
-   parameter                     FLUSH = 2'b11;
+   parameter                     START = 3'b000;
+   parameter                     CAPTURE_HEADER = 3'b001;
+   parameter                     CAPTURE_PAYLOAD= 3'b010;
+   parameter                     PROCESS = 3'b011;
+   parameter                     FLUSH = 3'b100;
 
    // internal signals
-   reg [1:0] state, state_next;
+   reg [2:0] state, state_next;
 
    reg set_start_addr, set_end_addr;
 
@@ -77,8 +81,12 @@ module network_mem
    reg [7:0] cpu_ctrl_in;
 	wire [7:0] cpu_ctrl_out;
 
-   assign in_rdy = (state == START) || ((state == CAPTURE) && !set_end_addr);
+   assign in_rdy = (state == START) || (((state == CAPTURE_HEADER) || (state == CAPTURE_PAYLOAD)) && !set_end_addr);
 	assign out_wr = out_rdy && read_req;
+	
+	assign state_out = state;
+	assign start_addr_out = pkt_start_addr;
+	assign end_addr_out = pkt_end_addr;
    
    FIFO_bram FIFO_bram_i (
       .addra(fifo_addr_in),   // FOR FIFO OP
@@ -107,12 +115,21 @@ module network_mem
       case (state)
          START: begin
             if (in_ctrl != 0) begin
-               state_next = CAPTURE;
+               state_next = CAPTURE_HEADER;
                fifo_we = 1;
                set_start_addr = 1;
             end
          end
-         CAPTURE : begin
+         CAPTURE_HEADER: begin
+            if (in_ctrl == 0) begin
+               state_next = CAPTURE_PAYLOAD;
+               set_end_addr = 1;
+            end
+            if (!full) begin
+               fifo_we = 1;
+            end
+         end
+         CAPTURE_PAYLOAD: begin
             if (in_ctrl != 0) begin
                state_next = PROCESS;
                set_end_addr = 1;
@@ -137,7 +154,7 @@ module network_mem
    end
    
    always @(posedge clk) begin
-      if(reset) begin
+      if (reset) begin
          head <= 0;
          tail <= 0;
          tail_wrapped <= 0;
@@ -155,7 +172,7 @@ module network_mem
          if (set_end_addr || full) pkt_end_addr <= tail;
 
          // Increment tail pointer logic
-         if (((state == START) && (in_ctrl != 0)) || ((state == CAPTURE) && (!full))) tail <= tail_next;
+         if (((state == START) && (in_ctrl != 0)) || (((state == CAPTURE_HEADER) || (state == CAPTURE_PAYLOAD)) && !full)) tail <= tail_next;
 
          // Increment head pointer logic
          if ((state == FLUSH) && (out_rdy && !empty)) head <= head_next;

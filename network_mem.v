@@ -20,9 +20,6 @@ module network_mem
       // input [7:0] cpu_addr_in,
       // input cpu_we,
 		// input done_process,
-		// output [1:0] state_out,
-		// output [7:0] start_addr_out,
-		// output [7:0] end_addr_out,
       
       // --- Register interface
       input                               reg_req_in,
@@ -150,11 +147,10 @@ module network_mem
       set_start_addr = 0;
       set_end_addr = 0;
 
-      cpu_data_in = 0;
-      cpu_ctrl_in = 0;
-
       //test
       pkts_ct_next = pkts_ct;
+      cpu_data_in = 0;
+      cpu_ctrl_in = 0;
 
       case (state)
          START: begin

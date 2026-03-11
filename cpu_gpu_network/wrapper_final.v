@@ -45,6 +45,8 @@ assign debug            =     command_reg[3];                           // This 
 
 
 
+wire cpu_start_process, cpu_done_process;
+wire [7:0] pkt_start_addr, pkt_end_addr;
 network_mem network_mem_i (
    .in_data (in_data),
    .in_ctrl (in_ctrl),
@@ -58,14 +60,14 @@ network_mem network_mem_i (
 
    // CPU/GPU Interface
    .cpu_addr_in (mem_addr),
-   .cpu_data_in (),
-   .cpu_we (),
-   .cpu_done_process (),
+   .cpu_data_in (mem_din),
+   .cpu_we (mem_we),
+   .cpu_done_process (cpu_done_process),      // will interact with network mem, CPU inst opcode16, insert at 2nd to last inst and simply tells network mem done
 
-   .cpu_start_process (),
-   .pkt_start_addr_out (),
-   .pkt_end_addr_out (),
-   .cpu_data_out (),
+   .cpu_start_process (cpu_start_process),     // will interact with CPU inst opcode15, CPU stalls until this signal is recieved
+   .pkt_start_addr_out (pkt_start_addr),    // special, exposed to regfile
+   .pkt_end_addr_out (pkt_end_addr),      // special, exposed to regfile
+   .cpu_data_out (mem_out),
 
    // misc
    .reset (reset),
@@ -166,8 +168,14 @@ cpu cpu_inst(.clk(clk),
 	     .imem_dout_out(cpu_imem_dout),
 	     .local_gpu_reset(gpu_reset),
 	     .pc_la(cpu_pc_la),
-	     .r1_data(cpu_r1_data)
+	     .r1_data(cpu_r1_data),
 	    // .cpu_status(cpu_status)
+
+         // Interface with network mem
+         .cpu_done_process (cpu_done_process),
+         .cpu_start_process (cpu_start_process),
+         .pkt_start_addr (pkt_start_addr),
+         .pkt_end_addr (pkt_end_addr)
     );
 
 generic_regs

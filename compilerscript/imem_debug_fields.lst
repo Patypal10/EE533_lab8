@@ -1,0 +1,96 @@
+====================== LABEL MAPS ======================
+NO NOPS (word addresses):
+
+WITH NOPS (expanded word addresses):
+========================================================
+
+--------------------------------------------------------------------------------
+PC(no_nops)=0 (0x000)   PC(expanded)=0 (0x000)
+ASM: mov r1, #200
+FINAL: bin=00000110010000010000001111001000
+FINAL: hex=0x064103C8
+
+FIELDS (NEW bit ranges):
+  [31] LA_Trigger=0   [30] User_stall=0   [29] update_flags=0   [28] unused=0
+  [27:19] imm9_tc=200 (0x0C8, b011001000)   imm_signed=200
+  [18:16] rd=r1 (001)         [15:13] rs2=(none) (000)             [12:10] rs1=(none) (000)
+  [9] alusrc=1    [8:5] cond=al (1110)    [4:0] opcode=mov (01000)
+
+EXPLAIN:
+  mov: rd=r1 imm=200
+
+--------------------------------------------------------------------------------
+PC(no_nops)=1 (0x001)   PC(expanded)=1 (0x001)
+ASM: mov r2, #56
+FINAL: bin=00000001110000100000001111001000
+FINAL: hex=0x01C203C8
+
+FIELDS (NEW bit ranges):
+  [31] LA_Trigger=0   [30] User_stall=0   [29] update_flags=0   [28] unused=0
+  [27:19] imm9_tc= 56 (0x038, b000111000)   imm_signed=56
+  [18:16] rd=r2 (010)         [15:13] rs2=(none) (000)             [12:10] rs1=(none) (000)
+  [9] alusrc=1    [8:5] cond=al (1110)    [4:0] opcode=mov (01000)
+
+EXPLAIN:
+  mov: rd=r2 imm=56
+
+--------------------------------------------------------------------------------
+PC(no_nops)=2 (0x002)   PC(expanded)=2 (0x002)
+ASM: mov r3, #1
+FINAL: bin=00000000000010110000001111001000
+FINAL: hex=0x000B03C8
+
+FIELDS (NEW bit ranges):
+  [31] LA_Trigger=0   [30] User_stall=0   [29] update_flags=0   [28] unused=0
+  [27:19] imm9_tc=  1 (0x001, b000000001)   imm_signed=1
+  [18:16] rd=r3 (011)         [15:13] rs2=(none) (000)             [12:10] rs1=(none) (000)
+  [9] alusrc=1    [8:5] cond=al (1110)    [4:0] opcode=mov (01000)
+
+EXPLAIN:
+  mov: rd=r3 imm=1
+
+--------------------------------------------------------------------------------
+PC(no_nops)=3 (0x003)   PC(expanded)=3 (0x003)
+ASM: add r2, r1, r2
+FINAL: bin=00000000000000100100010111000011
+FINAL: hex=0x000245C3
+
+FIELDS (NEW bit ranges):
+  [31] LA_Trigger=0   [30] User_stall=0   [29] update_flags=0   [28] unused=0
+  [27:19] imm9_tc=  0 (0x000, b000000000)   imm_signed=0
+  [18:16] rd=r2 (010)         [15:13] rs2=r2 (010)             [12:10] rs1=r1 (001)
+  [9] alusrc=0    [8:5] cond=al (1110)    [4:0] opcode=add (00011)
+
+EXPLAIN:
+  add: rd=r2 rs1=r1 rs2=r2
+
+--------------------------------------------------------------------------------
+PC(no_nops)=4 (0x004)   PC(expanded)=4 (0x004)
+ASM: str r3, [r2 , #8]
+FINAL: bin=00000000010000000110101111000010
+FINAL: hex=0x00406BC2
+
+FIELDS (NEW bit ranges):
+  [31] LA_Trigger=0   [30] User_stall=0   [29] update_flags=0   [28] unused=0
+  [27:19] imm9_tc=  8 (0x008, b000001000)   imm_signed=8
+  [18:16] rd_unused=(unused) (000)   [15:13] store_data(rs2)=r3 (011)   [12:10] base(rs1)=r2 (010)
+  [9] alusrc=1    [8:5] cond=al (1110)    [4:0] opcode=str (00010)
+
+EXPLAIN:
+  str: store_data=r3 base=r2 off=8
+
+--------------------------------------------------------------------------------
+PC(no_nops)=5 (0x005)   PC(expanded)=5 (0x005)
+ASM: str r3, [r1 , #8]
+FINAL: bin=00000000010000000110011111000010
+FINAL: hex=0x004067C2
+
+FIELDS (NEW bit ranges):
+  [31] LA_Trigger=0   [30] User_stall=0   [29] update_flags=0   [28] unused=0
+  [27:19] imm9_tc=  8 (0x008, b000001000)   imm_signed=8
+  [18:16] rd_unused=(unused) (000)   [15:13] store_data(rs2)=r3 (011)   [12:10] base(rs1)=r1 (001)
+  [9] alusrc=1    [8:5] cond=al (1110)    [4:0] opcode=str (00010)
+
+EXPLAIN:
+  str: store_data=r3 base=r1 off=8
+

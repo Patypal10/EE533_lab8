@@ -17,37 +17,36 @@ module network_mem
       output                              out_wr,
       input                               out_rdy,
 
-      // input [7:0] cpu_addr_in,
-      // input cpu_we,
-		// input done_process,
+      // CPU/GPU Interface
+      input [7:0] cpu_addr_in,
+      input [63:0] cpu_data_in,
+      input cpu_we,
+		input cpu_done_process,
+
+      output reg cpu_start_process,
+      output [7:0] pkt_start_addr_out,
+      output [7:0] pkt_end_addr_out,
+      output [63:0] cpu_data_out,
       
       // --- Register interface
-      input                               reg_req_in,
-      input                               reg_ack_in,
-      input                               reg_rd_wr_L_in,
-      input  [`UDP_REG_ADDR_WIDTH-1:0]    reg_addr_in,
-      input  [`CPCI_NF2_DATA_WIDTH-1:0]   reg_data_in,
-      input  [UDP_REG_SRC_WIDTH-1:0]      reg_src_in,
+      // input                               reg_req_in,
+      // input                               reg_ack_in,
+      // input                               reg_rd_wr_L_in,
+      // input  [`UDP_REG_ADDR_WIDTH-1:0]    reg_addr_in,
+      // input  [`CPCI_NF2_DATA_WIDTH-1:0]   reg_data_in,
+      // input  [UDP_REG_SRC_WIDTH-1:0]      reg_src_in,
 
-      output                              reg_req_out,
-      output                              reg_ack_out,
-      output                              reg_rd_wr_L_out,
-      output  [`UDP_REG_ADDR_WIDTH-1:0]   reg_addr_out,
-      output  [`CPCI_NF2_DATA_WIDTH-1:0]  reg_data_out,
-      output  [UDP_REG_SRC_WIDTH-1:0]     reg_src_out,
+      // output                              reg_req_out,
+      // output                              reg_ack_out,
+      // output                              reg_rd_wr_L_out,
+      // output  [`UDP_REG_ADDR_WIDTH-1:0]   reg_addr_out,
+      // output  [`CPCI_NF2_DATA_WIDTH-1:0]  reg_data_out,
+      // output  [UDP_REG_SRC_WIDTH-1:0]     reg_src_out,
 
       // misc
       input                                reset,
       input                                clk
    );
-
-   // assign reg_req_out = reg_req_in;
-   // assign reg_ack_out = reg_ack_in;
-   // assign reg_rd_wr_L_out = reg_rd_wr_L_in;
-   // assign reg_addr_out = reg_addr_in;
-   // assign reg_data_out = reg_data_in;
-   // assign reg_src_out = reg_src_in;
-
 
     // local parameter
    parameter                     START = 3'b000;
@@ -78,65 +77,76 @@ module network_mem
 
    // REG INTERFACE WILL BE EXPOSED PORTS
    reg [7:0] pkt_start_addr, pkt_end_addr;
-   wire done_process;
-   wire [7:0] cpu_addr_in;
-   wire cpu_we;
-   reg [63:0] cpu_data_in;
-	wire [63:0] cpu_data_out;
-   reg [7:0] cpu_ctrl_in;
-	wire [7:0] cpu_ctrl_out;
+   // wire cpu_done_process;
+   // wire [7:0] cpu_addr_in;
+   // wire cpu_we;
+   // reg [63:0] cpu_data_in;
+	// wire [63:0] cpu_data_out;
+   // reg [7:0] cpu_ctrl_in;
+	// wire [7:0] cpu_ctrl_out;
+
+   assign pkt_start_addr_out = pkt_start_addr;
+   assign pkt_end_addr_out = pkt_end_addr_out;
 
    assign in_rdy = (state == START) || (((state == CAPTURE_HEADER) || (state == CAPTURE_PAYLOAD)) && !set_end_addr);
 	assign out_wr = out_rdy && read_req;
 	
    // FOR TESTING
-   wire [31:0] mem_addr, command_reg;
-   wire [31:0] mem_data_lsb, mem_data_msb, mem_ctrl;
-   wire [31:0] pkt_start_debug, pkt_end_debug;
-   wire [31:0] flag;
-   wire [31:0] first_data_debug;
-   wire [31:0] head_ptr_debug, tail_ptr_debug;
-   wire [31:0] payload_cycles_debug;
-   wire [31:0] curr_state_debug;
-   wire [31:0] out_wr_ct_debug;
+   // wire [31:0] mem_addr, command_reg;
+   // wire [31:0] mem_data_lsb, mem_data_msb, mem_ctrl;
+   // wire [31:0] pkt_start_debug, pkt_end_debug;
+   // wire [31:0] flag;
+   // wire [31:0] first_data_debug;
+   // wire [31:0] head_ptr_debug, tail_ptr_debug;
+   // wire [31:0] payload_cycles_debug;
+   // wire [31:0] curr_state_debug;
+   // wire [31:0] out_wr_ct_debug;
 
-   assign mem_data_lsb = cpu_data_out[31:0];
-   assign mem_data_msb = cpu_data_out[63:32];
-   assign mem_ctrl = {{28'd0}, cpu_ctrl_out};
-   assign pkt_start_debug = pkt_start_addr;
-   assign pkt_end_debug = pkt_end_addr;
-   reg [31:0] pkts_ct, pkts_ct_next;
-   assign flag = pkts_ct;
-   reg [31:0] first_data_reg;
-   assign first_data_debug = first_data_reg;
-   assign head_ptr_debug = {{24'd0}, head};
-   assign tail_ptr_debug = {{24'd0}, tail};
-   reg [31:0] payload_cycles_reg;
-   assign payload_cycles_debug = payload_cycles_reg;
-   assign curr_state_debug = {{29'd0}, state};
-   reg [31:0] out_wr_ct_reg;
-   assign out_wr_ct_debug = out_wr_ct_reg;
+   // assign mem_data_lsb = cpu_data_out[31:0];
+   // assign mem_data_msb = cpu_data_out[63:32];
+   // assign mem_ctrl = {{28'd0}, cpu_ctrl_out};
+   // assign pkt_start_debug = pkt_start_addr;
+   // assign pkt_end_debug = pkt_end_addr;
+   // reg [31:0] pkts_ct, pkts_ct_next;
+   // assign flag = pkts_ct;
+   // reg [31:0] first_data_reg;
+   // assign first_data_debug = first_data_reg;
+   // assign head_ptr_debug = {{24'd0}, head};
+   // assign tail_ptr_debug = {{24'd0}, tail};
+   // reg [31:0] payload_cycles_reg;
+   // assign payload_cycles_debug = payload_cycles_reg;
+   // assign curr_state_debug = {{29'd0}, state};
+   // reg [31:0] out_wr_ct_reg;
+   // assign out_wr_ct_debug = out_wr_ct_reg;
 
 	// assign state_out = state;
 	// assign start_addr_out = pkt_start_addr;
 	// assign end_addr_out = pkt_end_addr;
-   assign done_process = 1;
-   assign cpu_addr_in = (command_reg[2:0] == 3'b001) ? mem_addr : 8'hff;
-   assign cpu_we = 0;
+   // assign cpu_done_process = 1;
+   // assign cpu_addr_in = (command_reg[2:0] == 3'b001) ? mem_addr : 8'hff;
+   // assign cpu_we = 0;
 
    
    // -----------------------------------------vSTART LOGIC ------------------------------------------------------------
-   FIFO_bram FIFO_bram_i (
+   fifo_data_bram fifo_data_bram_i (
       .addra(fifo_addr_in),   // FOR FIFO OP
       .addrb(cpu_addr_in),    // DMEM ACCESS FROM CPU
       .clka (clk),
       .clkb (clk),
-      .dina({in_ctrl, in_data}),
-      .dinb({cpu_ctrl_in, cpu_data_in}),
-      .douta({out_ctrl, out_data}),
-      .doutb({cpu_ctrl_out, cpu_data_out}),
+      .dina(in_data),
+      .dinb(cpu_data_in),
+      .douta(out_data),
+      .doutb(cpu_data_out),
       .wea(in_wr && fifo_we),
       .web(cpu_we)
+   );
+
+   fifo_ctrl_bram fifo_ctrl_bram_i (
+      .addra(fifo_addr_in),   // FOR FIFO OP
+      .clka (clk),
+      .dina(in_ctrl),
+      .douta(out_ctrl),
+      .wea(in_wr && fifo_we)
    );
    
 
@@ -146,11 +156,12 @@ module network_mem
       fifo_we = 0;
       set_start_addr = 0;
       set_end_addr = 0;
+      cpu_start_process = 0;
 
       //test
-      pkts_ct_next = pkts_ct;
-      cpu_data_in = 0;
-      cpu_ctrl_in = 0;
+      // pkts_ct_next = pkts_ct;
+      // cpu_data_in = 0;
+      // cpu_ctrl_in = 0;
 
       case (state)
          START: begin
@@ -158,7 +169,7 @@ module network_mem
                state_next = CAPTURE_HEADER;
                fifo_we = 1;
                set_start_addr = 1;
-               pkts_ct_next = pkts_ct + 1; // TEST
+               //pkts_ct_next = pkts_ct + 1; // TEST
             end
          end
          CAPTURE_HEADER: begin
@@ -180,9 +191,10 @@ module network_mem
             end
          end
          PROCESS : begin
-            if (done_process) begin
+            if (cpu_done_process) begin
                state_next = FLUSH;
             end
+            cpu_start_process = 1'b1;
             //cpu_data_in = cpu_data_out + 5;
             //cpu_ctrl_in = cpu_ctrl_out;
          end
@@ -205,9 +217,9 @@ module network_mem
          read_req <= 0;
 
          // TEST
-         pkts_ct <= 0;
-         payload_cycles_reg <= 0;
-         out_wr_ct_reg <= 0;
+         //pkts_ct <= 0;
+         //payload_cycles_reg <= 0;
+         //out_wr_ct_reg <= 0;
 
       end else begin
          state <= state_next;
@@ -236,50 +248,50 @@ module network_mem
 
 
          // TEST
-         pkts_ct <= pkts_ct_next;
-         first_data_reg <= (set_start_addr) ? in_data[31:0] : first_data_reg;
-         payload_cycles_reg <= ((state == CAPTURE_PAYLOAD) && (payload_cycles_reg != 32'hffffffff)) ? payload_cycles_reg + 1 : payload_cycles_reg;
-         out_wr_ct_reg <= (out_wr && (out_wr_ct_reg != 32'hffffffff)) ? out_wr_ct_reg + 1 : out_wr_ct_reg;
+         //pkts_ct <= pkts_ct_next;
+         //first_data_reg <= (set_start_addr) ? in_data[31:0] : first_data_reg;
+         //payload_cycles_reg <= ((state == CAPTURE_PAYLOAD) && (payload_cycles_reg != 32'hffffffff)) ? payload_cycles_reg + 1 : payload_cycles_reg;
+         //out_wr_ct_reg <= (out_wr && (out_wr_ct_reg != 32'hffffffff)) ? out_wr_ct_reg + 1 : out_wr_ct_reg;
       end
    end
    
    
-   generic_regs
-   #( 
-      .UDP_REG_SRC_WIDTH   (UDP_REG_SRC_WIDTH),
-      .TAG                 (`NETWORK_MEM_BLOCK_ADDR),          // Tag -- eg. MODULE_TAG
-      .REG_ADDR_WIDTH      (`NETWORK_MEM_REG_ADDR_WIDTH),     // Width of block addresses -- eg. MODULE_REG_ADDR_WIDTH
-      .NUM_COUNTERS        (0),                 // Number of counters
-      .NUM_SOFTWARE_REGS   (2),                 // Number of sw regs
-      .NUM_HARDWARE_REGS   (12)                  // Number of hw regs
-   ) module_regs (
-      .reg_req_in       (reg_req_in),
-      .reg_ack_in       (reg_ack_in),
-      .reg_rd_wr_L_in   (reg_rd_wr_L_in),
-      .reg_addr_in      (reg_addr_in),
-      .reg_data_in      (reg_data_in),
-      .reg_src_in       (reg_src_in),
+   // generic_regs
+   // #( 
+   //    .UDP_REG_SRC_WIDTH   (UDP_REG_SRC_WIDTH),
+   //    .TAG                 (`NETWORK_MEM_BLOCK_ADDR),          // Tag -- eg. MODULE_TAG
+   //    .REG_ADDR_WIDTH      (`NETWORK_MEM_REG_ADDR_WIDTH),     // Width of block addresses -- eg. MODULE_REG_ADDR_WIDTH
+   //    .NUM_COUNTERS        (0),                 // Number of counters
+   //    .NUM_SOFTWARE_REGS   (2),                 // Number of sw regs
+   //    .NUM_HARDWARE_REGS   (12)                  // Number of hw regs
+   // ) module_regs (
+   //    .reg_req_in       (reg_req_in),
+   //    .reg_ack_in       (reg_ack_in),
+   //    .reg_rd_wr_L_in   (reg_rd_wr_L_in),
+   //    .reg_addr_in      (reg_addr_in),
+   //    .reg_data_in      (reg_data_in),
+   //    .reg_src_in       (reg_src_in),
 
-      .reg_req_out      (reg_req_out),
-      .reg_ack_out      (reg_ack_out),
-      .reg_rd_wr_L_out  (reg_rd_wr_L_out),
-      .reg_addr_out     (reg_addr_out),
-      .reg_data_out     (reg_data_out),
-      .reg_src_out      (reg_src_out),
+   //    .reg_req_out      (reg_req_out),
+   //    .reg_ack_out      (reg_ack_out),
+   //    .reg_rd_wr_L_out  (reg_rd_wr_L_out),
+   //    .reg_addr_out     (reg_addr_out),
+   //    .reg_data_out     (reg_data_out),
+   //    .reg_src_out      (reg_src_out),
 
-      // --- counters interface
-      .counter_updates  (),
-      .counter_decrement(),
+   //    // --- counters interface
+   //    .counter_updates  (),
+   //    .counter_decrement(),
 
-      // --- SW regs interface
-      .software_regs    ({mem_addr,command_reg}),
+   //    // --- SW regs interface
+   //    .software_regs    ({mem_addr,command_reg}),
 
-      // --- HW regs interface
-      .hardware_regs    ({out_wr_ct_debug, curr_state_debug, payload_cycles_debug, tail_ptr_debug, head_ptr_debug, first_data_debug, flag, pkt_end_debug, pkt_start_debug, mem_ctrl, mem_data_msb, mem_data_lsb}),
+   //    // --- HW regs interface
+   //    .hardware_regs    ({out_wr_ct_debug, curr_state_debug, payload_cycles_debug, tail_ptr_debug, head_ptr_debug, first_data_debug, flag, pkt_end_debug, pkt_start_debug, mem_ctrl, mem_data_msb, mem_data_lsb}),
 
-      .clk              (clk),
-      .reset            (reset)
-    );
+   //    .clk              (clk),
+   //    .reset            (reset)
+   //  );
 
 
 endmodule
